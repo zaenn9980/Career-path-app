@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Career Path Advisor (AI Powered)</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fa;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .result {
+      background: #e9f5ff;
+      border-left: 4px solid #007bff;
+      padding: 15px;
+      border-radius: 5px;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Career Path Advisor (AI Powered)</h2>
+    <form id="careerForm">
+      <label for="role">Current Role:</label>
+      <input type="text" id="role" required>
+
+      <label for="experience">Years of Experience:</label>
+      <input type="number" id="experience" min="0" required>
+
+      <label for="skills">Your Skills (comma separated):</label>
+      <textarea id="skills" required></textarea>
+
+      <label for="interests">Your Interests:</label>
+      <textarea id="interests" required></textarea>
+
+      <button type="submit">Get Career Path</button>
+    </form>
+
+    <div id="output" class="result" style="display:none;"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('careerForm');
+    const output = document.getElementById('output');
+
+    // Replace with your OpenAI API key
+    const apiKey = "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";
+
+    async function getCareerPath(role, experience, skills, interests) {
+      const prompt = `Suggest career paths, upskilling, and opportunities for someone with: \n\nRole: ${role}\nExperience: ${experience} years\nSkills: ${skills}\nInterests: ${interests}`;
+
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: 400
+        })
+      });
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const role = document.getElementById('role').value.trim();
+      const experience = document.getElementById('experience').value;
+      const skills = document.getElementById('skills').value;
+      const interests = document.getElementById('interests').value;
+
+      output.innerHTML = "🔎 Analyzing your career path...";
+      output.style.display = 'block';
+
+      try {
+        const aiResult = await getCareerPath(role, experience, skills, interests);
+        output.innerHTML = `<h3>AI Career Suggestions</h3><p>${aiResult}</p>`;
+      } catch (err) {
+        output.innerHTML = ⚠️ Error: Unable to fetch suggestions. Please check your API key or internet connection.";
+      }
+    });
+  </script>
+</body>
+</html>
